@@ -23,6 +23,7 @@ class Solution {
     void traverse(TreeNode root){
         if(root == null){
             res = Math.max(res,depth);
+            return;
         }
         depth++;
         traverse(root.left);
