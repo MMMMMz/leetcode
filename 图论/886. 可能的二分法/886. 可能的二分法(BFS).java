@@ -3,56 +3,55 @@ class Solution {
     boolean visited[];
     boolean color[];
     boolean res = true;
+
     public boolean possibleBipartition(int n, int[][] dislikes) {
         List<Integer> graph[] = buildGraph(n, dislikes);
-        visited = new boolean[n+1];
-        color = new boolean[n+1];
-
-        for(int i = 1 ; i < n + 1 ; i++){
+        visited = new boolean[n + 1];
+        color = new boolean[n + 1];
+        for(int i = 1 ; i < n ; i++){
             if(!visited[i]){
-                traverse(graph, i);
+                bfs(graph, i);
             }
         }
 
         return res;
     }
 
-    void traverse(List<Integer>[] graph, int s){
-        Queue<Integer> q = new LinkedList();
-        visited[s] = true;
-        q.offer(s);
+    List<Integer>[] buildGraph(int n, int[][] dislikes){
+        List<Integer> graph[] = new LinkedList[n + 1];
 
-        while(!q.isEmpty() && res){
+        for(int i = 1 ; i < n + 1; i++)
+        {
+            graph[i] = new LinkedList<>();
+        }
+
+        for(int edges[] : dislikes){
+            graph[edges[0]].add(edges[1]);
+            graph[edges[1]].add(edges[0]);
+        }
+
+        return graph;
+    }
+
+    void bfs(List<Integer>[] graph, int s){
+        Queue<Integer> q = new LinkedList<>();
+        visited[s] = true;
+        q.add(s);
+
+        while(!q.isEmpty()){
             int cur = q.poll();
             for(int neighbor : graph[cur]){
                 if(!visited[neighbor]){
                     color[neighbor] = !color[cur];
                     visited[neighbor] = true;
-                    q.offer(neighbor);
+                    q.add(neighbor);
                 } else {
                     if(color[neighbor] == color[cur]){
                         res = false;
+                        return;
                     }
                 }
             }
         }
-    }
-
-    List<Integer>[] buildGraph(int n, int[][] dislikes){
-        List<Integer> graph[] = new LinkedList[n + 1];
-
-        for(int i = 1 ; i < n + 1 ; i++)
-        {
-            graph[i] = new LinkedList();
-        }
-
-       for(int edge[] : dislikes){
-            int from = edge[0];
-            int to = edge[1];
-            graph[from].add(to);
-            graph[to].add(from);
-        }
-
-        return graph;
     }
 }
