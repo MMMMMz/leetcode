@@ -1,48 +1,46 @@
 class Solution {
 
-
     class Prim{
-       PriorityQueue<int[]> pq;
-       boolean inMST[];
-       int weightSum = 0;
-       List<int[]>[] graph;
+        List<int[]> graph[];
+        int cost = 0;
+        boolean inMST[];
+        PriorityQueue<int[]> pq;
 
-       public Prim(List<int[]>[] graph){
-           this.graph = graph;
-           this.pq = new PriorityQueue<>((a, b) -> {
-            // 按照边的权重从小到大排序
-            return a[2] - b[2];
-        });
-           int n = graph.length;
-           inMST = new boolean[n];
-           inMST[0] = true;
-           cut(0);
+        public Prim(List<int[]>[] graph){
+            this.graph = graph;
+            int n = graph.length;
+            inMST = new boolean[n];
+            pq = new PriorityQueue<>((a, b) -> {return a[1] - b[1]; });
 
-           while(!pq.isEmpty()){
-               int edge[] = pq.poll();
-               int to = edge[1];
-               int weight = edge[2];
-               if(!inMST[to]){
-                  weightSum += weight;
-                  inMST[to] = true;
-                  cut(to);
-               }
-           }
-       }
+            inMST[0] = true;
+            cut(0);
 
-        public void cut(int s){
-            for(int edge[] : graph[s]){
-                if(!inMST[edge[1]]){
-                    pq.offer(edge);
-                }  
+            while(!pq.isEmpty()){
+                int cur[] = pq.poll();
+                if(!inMST[cur[0]]){
+                    cost += cur[1];
+                    inMST[cur[0]] = true;
+                    cut(cur[0]);
+                }
             }
         }
 
-        public int getWeightSum(){
-            return weightSum;
+        void cut(int s){
+            //类似于BFS，遍历临边加入优先级队列
+            for(int edge[] : graph[s]){
+                //若该条边不在队列中，则将其加入，后面每次选权值最小的边
+                if(!inMST[edge[0]]){
+                    pq.add(edge);
+                }
+            }
         }
 
-        public boolean allConnected(){
+        int getCost(){
+            return cost;
+        }
+
+        //判断是否包含全部节点
+        boolean allConnected(){
             for(int i = 0 ; i < inMST.length ; i++)
             {
                 if(!inMST[i]){
@@ -51,32 +49,27 @@ class Solution {
             }
             return true;
         }
-
     }
 
-    public List<int[]>[] buildGraph(int n, int[][] connections){
+    List<int[]>[] buildGraph(int n, int[][] connections){
         List<int[]> graph[] = new LinkedList[n];
+
         for(int i = 0 ; i < n ; i++)
         {
-            graph[i] = new LinkedList();
+            graph[i] = new LinkedList<>();
         }
 
-        for(int edge[] : connections)
-        {
-            graph[edge[0] - 1].add(new int[]{edge[0] - 1, edge[1] - 1, edge[2]});
-            graph[edge[1] - 1].add(new int[]{edge[1] - 1, edge[0] - 1, edge[2]});
+        for(int edge[] : connections){
+            graph[edge[0] - 1].add(new int[]{edge[1] - 1, edge[2]});
+            graph[edge[1] - 1].add(new int[]{edge[0] - 1, edge[2]});
         }
-
         return graph;
     }
 
     public int minimumCost(int n, int[][] connections) {
-      List<int[]>[] graph = buildGraph(n, connections);
-      Prim prim = new Prim(graph);
+         List<int[]> graph[] = buildGraph(n, connections);
+         Prim prim = new Prim(graph);
 
-      if(prim.allConnected()){
-          return prim.getWeightSum();
-      }
-      return -1;
+         return prim.allConnected() ? prim.getCost() : -1;
     }
 }
