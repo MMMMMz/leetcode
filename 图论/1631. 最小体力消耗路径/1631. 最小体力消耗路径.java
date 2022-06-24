@@ -3,81 +3,79 @@ class Solution {
     class State{
         int x;
         int y;
-        int effortFromStart;
+        int distFromStart;
 
-        public State(int x, int y, int effortFromStart){
+        public State(int x, int y, int distFromStart){
             this.x = x;
             this.y = y;
-            this.effortFromStart = effortFromStart;
+            this.distFromStart = distFromStart;
         }
     }
 
-    int dirs[][] = new int[][]{{-1, 0},{1, 0},{0, -1},{0, 1}};
-    List<int[]> adj(int martix[][], int x, int y){
+    int dirs[][] = new int[][]{{0, 1},{0, -1},{1, 0},{-1, 0}};
+
+    List<int[]> getNeighbors(int[][] martix, int x, int y){
         int m = martix.length;
         int n = martix[0].length;
 
-        List<int[]> neighbors = new ArrayList();
-        for(int dir[] : dirs){
-            int nx = x + dir[0];
-            int ny = y + dir[1];
-            if(nx >= m || nx < 0 || ny >= n || ny < 0){
-                continue;
-            }
+        List<int[]> neighbors = new ArrayList<>();
 
-            neighbors.add(new int[]{nx, ny});
+        for(int dir[] : dirs){
+            int x2 = x + dir[0];
+            int y2 = y + dir[1];
+            if(x2 >= 0 && x2 < m && y2 >= 0 && y2 < n){
+                neighbors.add(new int[]{x2, y2});
+            }
         }
 
         return neighbors;
     }
 
-    int dijkstra(int endX, int endY, int[][] heights){
-        int m = heights.length;
-        int n = heights[0].length;
+    int dijkstra(int[][] martix, int endX, int endY)
+    {
+        int m = martix.length;
+        int n = martix[0].length;
 
-        int effortTo[][] = new int[m][n];
+        int distTo[][] = new int[m][n];
         for(int i = 0 ; i < m ; i++)
         {
-            Arrays.fill(effortTo[i], Integer.MAX_VALUE);
+            Arrays.fill(distTo[i], Integer.MAX_VALUE);
         }
+        
 
-        effortTo[0][0] = 0;
+        distTo[0][0] = 0;
 
-        Queue<State> pq = new PriorityQueue<>((a, b) -> {return a.effortFromStart - b.effortFromStart; });
-
-        pq.offer(new State(0, 0, 0));
+        PriorityQueue<State> pq = new PriorityQueue<>((a, b) -> { return a.distFromStart - b.distFromStart; });
+        pq.add(new State(0,0,0));
 
         while(!pq.isEmpty()){
-            State curNode = pq.poll();
-            int curX = curNode.x;
-            int curY = curNode.y;
-            int curEffortFromStart = curNode.effortFromStart;
+            State cur = pq.poll();
+            int curX = cur.x;
+            int curY = cur.y;
+            int curDistFromStart = cur.distFromStart;
 
-            if(curX == endX && curY == endY){
-                return curEffortFromStart;
+            if(curX == endX && curY ==endY){
+                return curDistFromStart;
             }
-
-            if(curEffortFromStart > effortTo[curX][curY]){
+            if(curDistFromStart > distTo[curX][curY]){
                 continue;
             }
 
-            for(int neighbor[] : adj(heights, curX, curY)){
-                int nextX = neighbor[0];
-                int nextY = neighbor[1];
-                int effortToNextNode = Math.max(effortTo[curX][curY], Math.abs(heights[curX][curY] - heights[nextX][nextY]));
+            for(int neighbor[] : getNeighbors(martix, curX, curY)){
+                int neighborX = neighbor[0];
+                int neighborY = neighbor[1];
 
-                if(effortTo[nextX][nextY] > effortToNextNode){
-                    effortTo[nextX][nextY] = effortToNextNode;
-                    pq.offer(new State(nextX, nextY, effortToNextNode));
+                int distToNeighbor = Math.max(distTo[curX][curY], Math.abs(martix[neighborX][neighborY] - martix[curX][curY]));
+                if(distTo[neighborX][neighborY] > distToNeighbor){
+                    distTo[neighborX][neighborY] = distToNeighbor;
+                    pq.add(new State(neighborX, neighborY, distToNeighbor));
                 }
             }
         }
         return -1;
     }
-    public int minimumEffortPath(int[][] heights) {
-        int endX = heights.length - 1;
-        int endY = heights[0].length - 1;
 
-        return dijkstra(endX, endY, heights);
+    public int minimumEffortPath(int[][] heights) {
+        return dijkstra(heights, heights.length - 1, heights[0].length - 1);
     }
 }
