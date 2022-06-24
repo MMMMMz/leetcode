@@ -1,35 +1,17 @@
 class Solution {
 
-    class UF{
-        int count;
-        int parent[];
-        int size[];
+        class UF{
+        int count;  //表示连通分量个数
+        int parent[];   //表示每个节点的父节点是谁
 
         public UF(int n){
             this.count = n;
             parent = new int[n];
-            size = new int[n]; 
 
             for(int i = 0 ; i < n ; i++)
             {
                 parent[i] = i;
-                size[i] = 1;
             }
-        }
-
-        public int find(int x){
-            while(x != parent[x]){
-                parent[x] = parent[parent[x]];
-                x = parent[x];
-            }
-            return x;
-        }
-
-        public boolean connected(int p, int q){
-            int rootP = find(p);
-            int rootQ = find(q);
-
-            return rootP == rootQ;
         }
 
         public void union(int p, int q){
@@ -40,13 +22,22 @@ class Solution {
                 return;
             }
 
-            if(size[rootP] > size[rootQ]){
-                parent[rootQ] = rootP;
-                size[rootP] += size[rootQ];
-            } else {
-                parent[rootP] = rootQ;
-                size[rootQ] += size[rootP];
+            parent[rootP] = rootQ;
+            count--;
+        }
+
+        public boolean connected(int p, int q){
+            int rootP = find(p);
+            int rootQ = find(q);
+
+            return rootP == rootQ;
+        }
+
+        public int find(int x){
+            if(x != parent[x]){
+                parent[x] = find(parent[x]);
             }
+            return parent[x];
         }
 
         public int count(){
@@ -55,35 +46,31 @@ class Solution {
     }
 
     public int minCostConnectPoints(int[][] points) {
-        UF uf = new UF(points.length);
-        List<int []> edges = new ArrayList();
-        int mst = 0;
-        for(int i = 0 ; i < points.length ; i++)
+        List<int[]> edges = new LinkedList<>();
+        int n = points.length;
+        int cost = 0;
+        UF uf = new UF(n);
+        for(int i = 0 ; i < n ; i++)
         {
-            for(int j = i + 1 ; j < points.length ; j++)
+            for(int j = i + 1 ; j < n ; j++)
             {
                 int x1 = points[i][0];
                 int y1 = points[i][1];
                 int x2 = points[j][0];
                 int y2 = points[j][1];
-
-                edges.add(new int[]{
-                    i, j, Math.abs(x1 - x2) + Math.abs(y1 - y2)
-                });
+                edges.add(new int[]{i, j, Math.abs(x1 - x2) + Math.abs(y1 - y2 )});
             }
         }
-            Collections.sort(edges, (a, b) -> (a[2] - b[2]));
 
-            for(int edge[] : edges){
-                if(uf.connected(edge[0], edge[1])){
-                    continue;
-                }
+        Collections.sort(edges, (a, b) -> {return a[2] - b[2]; });
 
-                mst += edge[2];
-                uf.union(edge[0], edge[1]);   
+        for(int edge[] : edges){
+            if(!uf.connected(edge[0], edge[1])){
+                cost += edge[2];
+                uf.union(edge[0], edge[1]);
             }
-        
+        }
 
-        return mst;
+        return cost;
     }
 }
