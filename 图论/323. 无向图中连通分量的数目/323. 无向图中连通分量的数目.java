@@ -1,20 +1,25 @@
 class Solution {
 
-    class UF{
+        class UF{
+        //连通分量个数
         int count;
+        //每个节点的父节点
         int parent[];
+        //重量
+        int size[];
 
-        public UF(int n){
-            this.count = n;
-            parent = new int[n];
-
-            for(int i = 0 ; i < n ; i++)
-            {
-                parent[i] = i;
-            }
+    public UF(int count){
+        this.count = count;
+        parent = new int[count];
+        size = new int[count];
+        for(int i = 0 ; i < count ; i++)
+        {
+            parent[i] = i;
+            size[i] = 1;
         }
+    }
 
-        public void union(int p, int q){
+        void union(int p, int q){
             int rootP = find(p);
             int rootQ = find(q);
 
@@ -22,35 +27,46 @@ class Solution {
                 return;
             }
 
-            parent[rootP] = rootQ;
+            if(size[rootP] > size[rootQ]){
+                parent[rootQ] = rootP;
+                size[rootP] += size[rootQ];
+            } else {
+                parent[rootP] = rootQ;
+                size[rootQ] += size[rootP];
+            }
+
+            //连通分量变少
             count--;
         }
 
-        public boolean connected(int p, int q){
+        //查找某个节点的根节点，并压缩路径
+        int find(int x){
+            if(x != parent[x]){
+                parent[x] = find(parent[x]);
+            }
+            return parent[x];
+        }
+
+        //判断节点p和q是否连通
+        boolean connected(int p, int q){
             int rootP = find(p);
             int rootQ = find(q);
 
             return rootP == rootQ;
         }
 
-        public int find(int x){
-            if(parent[x] != x){
-                parent[x] = find(parent[x]);
-            }
-            return parent[x];
-        }
-
-        public int count(){
+        //返回连通分量的个数
+        int count(){
             return count;
         }
     }
 
     public int countComponents(int n, int[][] edges) {
         UF uf = new UF(n);
-        for(int edge[] : edges)
-        {
+        for(int edge[] : edges){
             uf.union(edge[0], edge[1]);
         }
-        return uf.count;
+
+        return uf.count();
     }
 }
