@@ -15,21 +15,29 @@
  */
 class Solution {
     public TreeNode constructMaximumBinaryTree(int[] nums) {
-        return build(nums, 0, nums.length - 1);
+
+        return traverse(nums, 0, nums.length - 1);
     }
-    TreeNode build(int[] nums, int l, int h)
-    {
-        if(l > h) return null;
-        int m = l;
-        for(int i = l; i <= h; i++)
+
+    TreeNode traverse(int[] nums, int low, int hig){
+        if(low > hig){
+            return null;
+        }
+
+        int maxValue = -1;
+        int index = low;
+        for(int i = low ; i <= hig ; i++)
         {
-            if(nums[i] > nums[m]){
-                m = i;
+            if(nums[i] > maxValue){
+                maxValue = nums[i];
+                index = i;
             }
         }
-        TreeNode root = new TreeNode(nums[m]);
-        root.left = build(nums, l, m - 1);
-        root.right = build(nums, m + 1, h);
+
+        TreeNode root = new TreeNode(maxValue);
+        root.left = traverse(nums, low, index - 1);
+        root.right = traverse(nums, index + 1, hig);
+
         return root;
     }
 }
