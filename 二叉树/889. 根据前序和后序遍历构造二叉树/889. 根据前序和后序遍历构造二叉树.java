@@ -15,26 +15,34 @@
  */
 class Solution {
     public TreeNode constructFromPrePost(int[] preorder, int[] postorder) {
-        return build(preorder, 0, preorder.length - 1, postorder, 0, postorder.length - 1);
+
+        return traverse(preorder, 0, preorder.length - 1, postorder, 0, postorder.length - 1);
     }
-    TreeNode build(int[] preorder, int preStart, int preEnd, int[] postorder, int posStart, int posEnd){
-        if(preStart > preEnd) return null;
-        if(preStart == preEnd) return new TreeNode(preorder[preStart]);
-        
+
+    TreeNode traverse(int[] preorder, int preStart, int preEnd, int[] postorder, int postStart, int postEnd){
+        if(preStart > preEnd){
+            return null;
+        }
+
+        if (preStart == preEnd) {
+            return new TreeNode(preorder[preStart]);
+        }
+
         int rootVal = preorder[preStart];
-        int leftVal = preorder[preStart + 1];
         TreeNode root = new TreeNode(rootVal);
-        int index = -1;
-        for(int i = posStart ; i <= posEnd ; i++)
+        int index = postStart;
+        for(int i = postStart ; i <= postEnd ; i++)
         {
-            if(postorder[i] == leftVal){
+            if(postorder[i] == preorder[preStart + 1]){
                 index = i;
                 break;
             }
         }
-        int leftSize = index - posStart + 1;
-        root.left = build(preorder, preStart + 1, preStart + leftSize, postorder, posStart, index);
-        root.right = build(preorder, preStart + leftSize + 1, preEnd, postorder, index + 1, posEnd);
+
+        int leftLen =   index - postStart + 1;
+        root.left = traverse(preorder, preStart + 1, preStart + leftLen, postorder, postStart, index);
+        root.right = traverse(preorder, preStart + 1 + leftLen, preEnd, postorder, index + 1, postEnd - 1);
+
         return root;
     }
 }
