@@ -15,21 +15,30 @@
  */
 class Solution {
     public TreeNode buildTree(int[] inorder, int[] postorder) {
-        return build(inorder, 0, inorder.length - 1, postorder, 0, postorder.length - 1);
+
+        return traverse(inorder, 0, inorder.length - 1, postorder, 0, postorder.length - 1);
     }
-    TreeNode build(int[] inorder, int inStart, int inEnd, int[] postorder, int poStart, int poEnd){
-        if(inStart > inEnd) return null;
-        int rootVal = postorder[poEnd];
+
+    TreeNode traverse(int[] inorder, int inStart, int inEnd, int[] postorder, int postStart, int postEnd){
+        if(inStart > inEnd){
+            return null;
+        }
+
+        int rootVal = postorder[postEnd];
         TreeNode root = new TreeNode(rootVal);
-        int index = -1;
-        for(int i = inStart ; i <= inEnd ; i++){
+        int index = inStart;
+
+        for(int i = inStart ; i <= inEnd ; i++)
+        {
             if(inorder[i] == rootVal){
                 index = i;
+                break;
             }
         }
-        int leftSize = index - inStart;
-        root.left = build(inorder, inStart, index - 1, postorder, poStart, poStart + leftSize - 1);
-        root.right = build(inorder, index + 1, inEnd, postorder,  poStart + leftSize, poEnd - 1);
+
+        int leftLen = index - inStart;
+        root.left = traverse(inorder, inStart, index - 1, postorder, postStart, postStart + leftLen - 1);
+        root.right = traverse(inorder, index + 1, inEnd, postorder, postStart + leftLen, postEnd - 1);
         return root;
     }
 }
