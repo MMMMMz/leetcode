@@ -57,7 +57,6 @@ class Solution {
                 count[arr[p].id] += j - (mid + 1);
             } else if(temp[i].val > temp[j].val){
                 arr[p] = temp[j++];
-                
             } else {
                 arr[p] = temp[i++];
                 count[arr[p].id] += j - (mid + 1);
